@@ -1,5 +1,7 @@
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
+from kivy.uix.button import Button
+
 from kivy.graphics import Ellipse, Color, Line, Rectangle
 from kivy.utils import get_color_from_hex
 
@@ -9,6 +11,7 @@ Builder.load_file('kv/tools.kv')
 import utils
 
 LINE_WIDTH = 1.1
+
 
 class Tool:
     name = "default"
@@ -160,7 +163,17 @@ all_tools = [
 ]
 
 
+from functools import partial
 class ToolBox(BoxLayout):
 
-    def __init__(self, **kw):
+    def __init__(self, parent, **kw):
         super(ToolBox, self).__init__(**kw)
+        self.pseudo_parent = parent
+
+        for tool in all_tools:
+            b = Button()
+            b.text = tool.name
+            b.bind(on_press=partial(self.button_cb, tool.name))
+
+    def button_cb(self, tool_name, *args):
+        self.pseudo_parent.set_current_tool(tool_name)
