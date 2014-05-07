@@ -1,6 +1,9 @@
+import math
 import cymunk as cy
-from kivy.graphics import Color, Ellipse, Rectangle
+from kivy.graphics import Color, Ellipse, Rectangle, Rotate
 from kivy.properties import DictProperty, ListProperty
+
+FRICTION = 5
 
 CIRCLE_TYPE = 1
 RECT_TYPE = 2
@@ -56,6 +59,8 @@ class Renderer:
         self.space.add(c)
         self.space.add(d)
         self.space_bounds = [a, b, c, d] 
+        for x in self.space_bounds:
+            x.friction = FRICTION
 
     def update_objects(self):
         for body in self.space.bodies:
@@ -69,17 +74,23 @@ class Renderer:
                 canvas_instruction.pos = p.x-rad, p.y-rad
                 canvas_instruction.size = rad*2, rad*2
             elif data["type"]==RECT_TYPE:
-                canvas_instruction = data["instruction"]
+                rect, rotater, unrotater = data["instruction"]
                 size = data["size"]
 
-                canvas_instruction.pos = p.x-(size[0]/2), p.y-(size[1]/2)
-                canvas_instruction.size = size
+                rotater.angle = math.degrees(body.angle)
+                rotater.origin = p.x, p.y
+                rect.pos = p.x-(size[0]/2), p.y-(size[1]/2)
+                rect.size = size
+                unrotater.angle = -math.degrees(body.angle)
+                unrotater.origin = p.x, p.y
+
 
     def add_circle(self, x, y, radius, random_color):
         body = cy.Body(100, 1e9)
         body.position = x, y
         circle = cy.Circle(body, radius)
         circle.elasticity = 0.6
+        circle.friction = FRICTION
         self.space.add(body, circle)
 
         with self.parent.canvas.before:
@@ -100,17 +111,20 @@ class Renderer:
 
         rect_shape = cy.Poly.create_box(body, size=(width, height))
         rect_shape.elasticity = 0.6
+        rect_shape.friction = FRICTION
         self.space.add(body, rect_shape)
 
 
         with self.parent.canvas.before:
             color = Color(*random_color, mode="rgba")
-            rect = Rectangle(pos=(x, y),
+            rotater = Rotate(angle=0, axis=(0, 0, 1), origin=(x, y))
+            rect = Rectangle(pos=(x-(width/2), y-(height/2)),
                              size=(width, height))
+            unrotater = Rotate(0, (0, 0, 1), origin=(x, y))
 
         body.data = {
             "size": (width, height), 
             "color": color,
-            "instruction": rect,
+            "instruction": (rect, rotater, unrotater),
             "type": RECT_TYPE
         }

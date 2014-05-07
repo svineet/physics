@@ -129,8 +129,6 @@ class RectangleTool(Tool):
                     Line(points=[x1, y1, x, y],
                          width=LINE_WIDTH, cap="round")
 
-
-
     def on_touch_down(self, touch):
         self.init_pos = touch.x, touch.y
 
@@ -143,7 +141,7 @@ class RectangleTool(Tool):
         hw = abs(x1-x)
         hh = abs(y1-y)
 
-        if not (hw<10 or hh<10):    
+        if not (hw<10 or hh<10):  
             self.game.renderer.add_box(x1, y1, 2*hw, 2*hh, self.color)
 
         self.game.canvas.remove(self.draw_rectangle)
