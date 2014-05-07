@@ -1,0 +1,46 @@
+
+<PhysicsWidget>:
+
+    canvas.before:
+        Color:
+            rgba: 1, 1, 1, 1
+
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+
+    PhysicsGame:
+        id: game
+
+        size: root.size
+        pos: 0, 0
+
+
+    AnchorLayout:
+        pos: root.pos
+        size: root.size
+        padding: 10
+        anchor_x: "left"
+        anchor_y: "top"
+
+        Button:
+            keep_ratio: True
+
+            size_hint: (None, None)
+            pos_hint: (None, None) 
+            size: (2/10.)*root.height, (2/10.)*root.height
+
+            background_color: [0, 0, 0, 0]
+            bgcolor: [0.9333333333333333, 0.9333333333333333, 0.9333333333333333, 0.6]
+            
+            canvas.after:
+                Color: 
+                    rgba: self.bgcolor
+                    # After the tap,
+                    # rgba: [0.2, 0.7098039215686275, 0.8980392156862745, 0.8]
+
+                Ellipse:
+                    pos: self.pos
+                    size: max(self.size), max(self.size)
+
