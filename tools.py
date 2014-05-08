@@ -45,6 +45,7 @@ class CircleTool(Tool):
 
         self.init_pos = None
         self.final_pos = None
+        self.saved = None
 
     def draw(self, x, y):
         d = int(utils.distance((x, y), self.init_pos))
@@ -84,9 +85,17 @@ class CircleTool(Tool):
         
         if not (d<10):
             self.game.renderer.add_circle(x1, y1, d, self.color)
+            self.saved = d
+        elif self.saved is not None:
+            # Add saved one
+            d = self.saved
+            x1, y1 = touch.x, touch.y
 
-        self.game.canvas.remove(self.draw_circle)
-        self.game.canvas.remove(self.draw_line)
+            self.game.renderer.add_circle(x1, y1, d, self.color)
+
+        if self.draw_circle is not None and self.draw_line is not None:
+            self.game.canvas.remove(self.draw_circle)
+            self.game.canvas.remove(self.draw_line)
 
         self.draw_circle = None
         self.draw_line = None
@@ -105,7 +114,7 @@ class RectangleTool(Tool):
         self.draw_line = None
 
         self.init_pos = None
-        self.final_pos = None
+        self.saved = None
 
     def draw(self, x, y):
         d = int(utils.distance((x, y), self.init_pos))
@@ -144,11 +153,19 @@ class RectangleTool(Tool):
         hw = abs(x1-x)
         hh = abs(y1-y)
 
-        if not (hw<10 or hh<10):  
+        if not (hw<5 or hh<5):  
+            self.game.renderer.add_box(x1, y1, 2*hw, 2*hh, self.color)
+            self.saved = (hw, hh)
+        elif self.saved is not None:
+            # Add saved one
+            hw, hh = self.saved
+            x1, y1 = touch.x, touch.y
+
             self.game.renderer.add_box(x1, y1, 2*hw, 2*hh, self.color)
 
-        self.game.canvas.remove(self.draw_rectangle)
-        self.game.canvas.remove(self.draw_line)
+        if self.draw_rectangle is not None and self.draw_line is not None:
+            self.game.canvas.remove(self.draw_rectangle)
+            self.game.canvas.remove(self.draw_line)
 
         self.draw_rectangle = None
         self.draw_line = None
@@ -161,19 +178,43 @@ all_tools = [
     CircleTool,
     RectangleTool
 ]
+total_btns = len(all_tools)+1
+
+
+class SublimeButton(Button):
+    def __init__(self, **kw):
+        super(SublimeButton, self).__init__(**kw)
+
+        self.size_hint = 1/total_btns, 1
 
 
 from functools import partial
 class ToolBox(BoxLayout):
 
-    def __init__(self, parent, **kw):
+    def __init__(self, **kw):
         super(ToolBox, self).__init__(**kw)
-        self.pseudo_parent = parent
 
+        self.tools_visible = False
+        self.tool_btns = []
         for tool in all_tools:
-            b = Button()
+            b = SublimeButton()
             b.text = tool.name
             b.bind(on_press=partial(self.button_cb, tool.name))
+            self.tool_btns.append(b)
 
     def button_cb(self, tool_name, *args):
-        self.pseudo_parent.set_current_tool(tool_name)
+        self.parent.parent.ids.game.set_tool(tool_name)
+
+    def toggle_tool_visible(self):
+        if self.tools_visible:
+            for btn in self.tool_btns:
+                self.remove_widget(btn)
+            self.tools_visible = False
+        elif not self.tools_visible:
+            for btn in self.tool_btns:
+                self.add_widget(btn)
+            self.tools_visible = True
+
+    def toogle_game_play_pause(self):
+        self.parent.parent.ids.game.toggle_game_state()
+

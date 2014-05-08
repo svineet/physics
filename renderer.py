@@ -3,7 +3,7 @@ import cymunk as cy
 from kivy.graphics import Color, Ellipse, Rectangle, Rotate
 from kivy.properties import DictProperty, ListProperty
 
-FRICTION = 5
+FRICTION = 2
 
 CIRCLE_TYPE = 1
 RECT_TYPE = 2
@@ -86,11 +86,11 @@ class Renderer:
 
 
     def add_circle(self, x, y, radius, random_color):
-        body = cy.Body(100, 1e9)
+        body = cy.Body(100, 1e5)
         body.position = x, y
         circle = cy.Circle(body, radius)
         circle.elasticity = 0.6
-        circle.friction = FRICTION
+        circle.friction = FRICTION/2
         self.space.add(body, circle)
 
         with self.parent.canvas.before:

@@ -12,20 +12,29 @@
 
     PhysicsGame:
         id: game
+        toolbox: toolbox
 
         size: root.size
         pos: 0, 0
 
 
     AnchorLayout:
-        id: toolbox_revealer
+        id: toolbox_area
 
-        pos: root.pos
-        size: root.size
-        padding: 10
+        size: root.width, root.height/10
+        pos: 0, root.height-self.height
+        padding: 2
+        
         anchor_x: "left"
         anchor_y: "top"
 
+        canvas:
+            Color:
+                rgba: [1, 1, 0, 1]
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
         ToolBox:
-            size_hint: (None, None)
-            pos_hint: (None, None) 
+            id: toolbox
+            pos_hint: None, None

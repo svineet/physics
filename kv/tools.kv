@@ -3,9 +3,14 @@
 
 <ToolBox>:
     orientation: 'horizontal'
-    opacity: 0
 
-    Button:
-        size: (2/10.)*self.parent.parent.height,
-              (2/10.)*self.parent.parent.height
+    SublimeButton:
         text: "Tools pls."
+
+        on_press: root.toggle_tool_visible()
+
+    SublimeButton:
+        id: pause_resume
+
+        text: "Pause/Resume"
+        on_press: root.toogle_game_play_pause()
