@@ -1,6 +1,8 @@
+import cymunk
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
 from kivy.uix.button import Button
+from kivy.uix.behaviors import ButtonBehavior
 
 from kivy.graphics import Ellipse, Color, Line, Rectangle
 from kivy.utils import get_color_from_hex
@@ -20,7 +22,7 @@ class Tool:
     def __init__(self, game):
         self.game = game
 
-    def draw(self):
+    def draw(self,x, y):
         pass
 
     def on_touch_down(self, touch):
@@ -173,10 +175,59 @@ class RectangleTool(Tool):
         self.final_pos = None
 
 
+class PinTool(Tool):
+    name = "pin"
+    icon = "resources/pin.png"
+
+    def __init__(self, game):
+        self.game = game
+
+    def draw(self, x, y):
+        pass
+
+    def on_touch_down(self, touch):
+        x, y = touch.x, touch.y
+        space = self.game.get_space()
+        shape = space.point_query_first(cymunk.Vec2d(x, y))
+        if shape is None:
+            print "lel u iz mudi egent or wat? i wll roit ur houze fr da lulz."+\
+                  " heuhuehhue"
+        else:
+            body = shape.body
+            joint = cymunk.constraint.PivotJoint(body,
+                                             space.static_body,
+                                             cymunk.Vec2d(x, y))
+            space.add(joint)
+
+
+class JointTool(Tool):
+    name = "joint"
+    icon = "resources/pin.png"
+
+    def __init__(self, game):
+        self.game = game
+
+    def draw(self, x, y):
+        pass
+
+    def on_touch_down(self, touch):
+        x, y = touch.x, touch.y
+        space = self.game.get_space()
+        shape = space.point_query_first(cymunk.Vec2d(x, y))
+        if shape is None:
+            print "fak of lel"
+        else:
+            body = shape.body
+            joint = cymunk.constraint.PivotJoint(body,
+                                             space.static_body,
+                                             cymunk.Vec2d(x, y))
+            space.add(joint)
+
 
 all_tools = [
     CircleTool,
-    RectangleTool
+    RectangleTool,
+    PinTool
 ]
 total_btns = len(all_tools)+1
 
@@ -186,6 +237,11 @@ class SublimeButton(Button):
         super(SublimeButton, self).__init__(**kw)
 
         self.size_hint = 1/total_btns, 1
+        self.background_color = [0, 0, 0, 0]
+
+    def activated(self):
+        # self.background_color = 
+        pass
 
 
 from functools import partial
@@ -195,7 +251,10 @@ class ToolBox(BoxLayout):
         super(ToolBox, self).__init__(**kw)
 
         self.tools_visible = False
-        self.tool_btns = []
+        pause_res = SublimeButton(
+            text="Pause/Resume",
+            on_press=self.toogle_game_play_pause)
+        self.tool_btns = [pause_res]
         for tool in all_tools:
             b = SublimeButton()
             b.text = tool.name
@@ -209,12 +268,13 @@ class ToolBox(BoxLayout):
         if self.tools_visible:
             for btn in self.tool_btns:
                 self.remove_widget(btn)
+            self.width = self.ids.revealer.width+2
             self.tools_visible = False
         elif not self.tools_visible:
             for btn in self.tool_btns:
                 self.add_widget(btn)
             self.tools_visible = True
 
-    def toogle_game_play_pause(self):
+    def toogle_game_play_pause(self, *args):
         self.parent.parent.ids.game.toggle_game_state()
 

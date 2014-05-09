@@ -3,7 +3,7 @@ import cymunk as cy
 from kivy.graphics import Color, Ellipse, Rectangle, Rotate
 from kivy.properties import DictProperty, ListProperty
 
-FRICTION = 2
+FRICTION = 0.5
 
 CIRCLE_TYPE = 1
 RECT_TYPE = 2
@@ -83,6 +83,7 @@ class Renderer:
                 rect.size = size
                 unrotater.angle = -math.degrees(body.angle)
                 unrotater.origin = p.x, p.y
+            else: print body
 
 
     def add_circle(self, x, y, radius, random_color):

@@ -55,3 +55,6 @@ class PhysicsGame(Widget):
 
     def toggle_game_state(self):
         self.game_state = RUNNING if self.game_state==PAUSED else PAUSED
+
+    def get_space(self):
+        return self.renderer.space

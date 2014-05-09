@@ -7,7 +7,7 @@ def distance((x1, y1), (x2, y2)):
     return math.sqrt((x1-x2)**2+(y1-y2)**2)
 
 
-def random_color():
+def random_color(alpha=1):
     colors = [
         "#33B5E5",
         "#0099CC",
@@ -21,4 +21,6 @@ def random_color():
         "#CC0000"
     ]
     colors = [get_color_from_hex(x) for x in colors]
-    return random.choice(colors)
+    c = random.choice(colors)
+    c[-1] = alpha
+    return c
