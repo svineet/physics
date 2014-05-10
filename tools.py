@@ -197,37 +197,131 @@ class PinTool(Tool):
             joint = cymunk.constraint.PivotJoint(body,
                                              space.static_body,
                                              cymunk.Vec2d(x, y))
+
             space.add(joint)
 
 
+
 class JointTool(Tool):
-    name = "joint"
+    name = "joint_tool"
+    icon = "resources/joint.png"
+
+    def __init__(self, game):
+        self.game = game
+        self.space = self.game.get_space()
+        self.clean_up()
+
+    def draw(self, x, y):
+        pass
+
+    def on_touch_down(self, touch):
+        shape = self.space.point_query_first(cymunk.Vec2d(touch.x, touch.y))
+        if shape is None:
+            print "lel u iz mudi egent or wat? i wll roit ur houze fr da lulz."+\
+                  " heuhuehhue"
+        else:
+            self.init_pos = cymunk.Vec2d(touch.x, touch.y)
+            self.body1 = shape.body
+
+    def on_touch_up(self, touch):
+        shape = self.space.point_query_first(cymunk.Vec2d(touch.x, touch.y))
+        if shape is None:
+            print "lel u iz mudi egent or wat? i wll roit ur houze fr da lulz."+\
+                  " heuhuehhue"
+            self.clean_up()
+        else:
+            self.final_pos = cymunk.Vec2d(touch.x, touch.y)
+            self.body2 = shape.body
+            print dir(cymunk.constraint)
+            joint = cymunk.constraint.PinJoint(
+                self.body1, self.body2,
+                self.init_pos, self.final_pos
+                )
+
+            self.space.add(joint)
+
+    def clean_up(self):
+        self.init_pos = None
+        self.body1 = None
+        self.final_pos = None
+        self.body2 = None
+        self.draw_line = None
+
+
+class EraserTool(Tool):
+    name = "eraser"
     icon = "resources/pin.png"
 
     def __init__(self, game):
         self.game = game
+        self.draw_vertices = []
+        self.draw_line = None
 
-    def draw(self, x, y):
-        pass
+    def draw(self):
+        if self.draw_line is None:
+            with self.game.canvas:
+                Color(*utils.random_color(), mode="rgba")
+                self.draw_line = Line(points=self.draw_vertices,
+                                      width=3)
+        else:
+            self.draw_line.points = self.draw_vertices
+
+    def on_touch_up(self, touch):
+        self.draw_vertices = []
+        if self.draw_line: self.game.canvas.remove(self.draw_line)
+        self.draw_line = None
 
     def on_touch_down(self, touch):
         x, y = touch.x, touch.y
         space = self.game.get_space()
         shape = space.point_query_first(cymunk.Vec2d(x, y))
         if shape is None:
-            print "fak of lel"
+            pass
         else:
             body = shape.body
-            joint = cymunk.constraint.PivotJoint(body,
-                                             space.static_body,
-                                             cymunk.Vec2d(x, y))
-            space.add(joint)
+            data = body.data
+
+            if data is None: return  # Static body!
+
+            check_joints = False
+            j = None
+            for c in space.constraints:
+                if c.a is body or c.b is body:
+                    check_joints = True
+                    j = c
+                    self.game.canvas.remove(
+                        self.game.renderer.joints_drawn[j])
+                    del self.game.renderer.joints_drawn[j]
+                    break
+
+            if check_joints:
+                space.remove(j)
+            else:
+                # print "Nope"
+                for s in data["shapes"]:
+                    space.remove(s)
+
+                for ins in data["instruction"]:
+                    self.game.canvas.before.remove(ins)
+                space.remove(body)
+
+    def on_touch_move(self, touch):
+        if len(self.draw_vertices)>18:
+            self.draw_vertices.pop(0)
+            self.draw_vertices.pop(0)
+        self.draw_vertices.extend([touch.x, touch.y])
+        if len(self.draw_vertices)>2:
+            self.draw()
+
+        self.on_touch_down(touch)
 
 
 all_tools = [
     CircleTool,
     RectangleTool,
-    PinTool
+    PinTool,
+    JointTool,
+    EraserTool
 ]
 total_btns = len(all_tools)+1
 
