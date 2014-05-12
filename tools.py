@@ -1,4 +1,6 @@
-import cymunk
+import pymunk as cymunk
+from pymunk import Vec2d
+
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
 from kivy.uix.button import Button
@@ -138,7 +140,7 @@ class RectangleTool(Tool):
                     Rectangle(pos=(x-d, y-d),
                               size=(d/2, d/2))
                 
-                Color(*get_color_from_hex("#33B5E5"))
+                Color(*get_color_from_hex("#33B5E5"), mode="rgba")
                 self.draw_line = \
                     Line(points=[x1, y1, x, y],
                          width=LINE_WIDTH, cap="round")
@@ -188,7 +190,7 @@ class PinTool(Tool):
     def on_touch_down(self, touch):
         x, y = touch.x, touch.y
         space = self.game.get_space()
-        shape = space.point_query_first(cymunk.Vec2d(x, y))
+        shape = space.point_query_first(Vec2d(x, y))
         if shape is None:
             print "lel u iz mudi egent or wat? i wll roit ur houze fr da lulz."+\
                   " heuhuehhue"
@@ -196,7 +198,7 @@ class PinTool(Tool):
             body = shape.body
             joint = cymunk.constraint.PivotJoint(body,
                                              space.static_body,
-                                             cymunk.Vec2d(x, y))
+                                             Vec2d(x, y))
 
             space.add(joint)
 
@@ -209,43 +211,68 @@ class JointTool(Tool):
     def __init__(self, game):
         self.game = game
         self.space = self.game.get_space()
+        self.draw_line = None
+
         self.clean_up()
 
     def draw(self, x, y):
-        pass
+        if self.draw_line is not None:
+            self.draw_line.points = [self.init_pos[0], self.init_pos[1], x, y]
+        elif self.init_pos:
+            with self.game.canvas.after:
+                Color(*utils.random_color(), mode="rgba")
+                self.draw_line = \
+                    Line(points=[self.init_pos[0], self.init_pos[1], x, y],
+                         width=LINE_WIDTH)
 
     def on_touch_down(self, touch):
-        shape = self.space.point_query_first(cymunk.Vec2d(touch.x, touch.y))
-        if shape is None:
-            print "lel u iz mudi egent or wat? i wll roit ur houze fr da lulz."+\
-                  " heuhuehhue"
-        else:
-            self.init_pos = cymunk.Vec2d(touch.x, touch.y)
-            self.body1 = shape.body
-
-    def on_touch_up(self, touch):
-        shape = self.space.point_query_first(cymunk.Vec2d(touch.x, touch.y))
+        shape = self.space.point_query_first(Vec2d(touch.x, touch.y))
         if shape is None:
             print "lel u iz mudi egent or wat? i wll roit ur houze fr da lulz."+\
                   " heuhuehhue"
             self.clean_up()
         else:
-            self.final_pos = cymunk.Vec2d(touch.x, touch.y)
+            self.init_pos = (touch.x, touch.y)
+            self.body1 = shape.body
+
+    def on_touch_up(self, touch):
+        shape = self.space.point_query_first(Vec2d(touch.x, touch.y))
+        if shape is None:
+            print "lel u iz mudi egent or wat? i wll roit ur houze fr da lulz."+\
+                  " heuhuehhue"
+        else:
+            self.final_pos = (touch.x, touch.y)
             self.body2 = shape.body
-            print dir(cymunk.constraint)
-            joint = cymunk.constraint.PinJoint(
+
+            ix, iy = self.init_pos
+            fx, fy = self.final_pos
+            x1, y1 = self.body1.position.x, self.body1.position.y
+            x2, y2 = self.body2.position.x, self.body2.position.y
+            anchr1 = (ix-x1, iy-y1)
+            anchr2 = (fx-x2, fy-y2)
+
+
+            joint = cymunk.PinJoint(
                 self.body1, self.body2,
-                self.init_pos, self.final_pos
+                anchr1, anchr2
                 )
 
             self.space.add(joint)
+        self.clean_up()
 
     def clean_up(self):
         self.init_pos = None
         self.body1 = None
         self.final_pos = None
         self.body2 = None
+
+        if self.draw_line is not None:
+            self.game.canvas.after.remove(self.draw_line)
+            # print "Removed that shitty line"
+
         self.draw_line = None
+
+
 
 
 class EraserTool(Tool):
@@ -274,15 +301,17 @@ class EraserTool(Tool):
     def on_touch_down(self, touch):
         x, y = touch.x, touch.y
         space = self.game.get_space()
-        shape = space.point_query_first(cymunk.Vec2d(x, y))
+        shape = space.point_query_first(Vec2d(x, y))
         if shape is None:
             pass
         else:
             body = shape.body
+            
+
+            if not hasattr(body, 'data'):
+                return
+
             data = body.data
-
-            if data is None: return  # Static body!
-
             check_joints = False
             j = None
             for c in space.constraints:
@@ -330,7 +359,6 @@ class SublimeButton(Button):
     def __init__(self, **kw):
         super(SublimeButton, self).__init__(**kw)
 
-        self.size_hint = 1/total_btns, 1
         self.background_color = [0, 0, 0, 0]
 
     def activated(self):

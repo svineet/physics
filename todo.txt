@@ -1,0 +1,23 @@
+Bug:
+
+* Joints dont get drawn in paused mode
+* Toolbar is ugly
+* toolbar pause button doesn't show state
+* Toolbar scrolling, too many tools to fit in one place.
+* Implement active state of buttons
+* Ground is not visible. There are segments all around. There should only be one ground body, no other static bodies.
+
+Enhancement:
+
+* Pen
+* Invert Gravity (0, -700) to (0, 700) makes it awesomer!
+* make a tool boolean property called toggle_button, then each toggle_button tool has a toggled cb which is called on toggle. Will make life easier
+
+Critical tools to be implemented:
+
+* Grabber
+* Polygon, would make drawing easier.
+* Triangle if time be
+* Motor
+* Pen, would be awesome
+

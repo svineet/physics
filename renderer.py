@@ -1,5 +1,7 @@
 import math
-import cymunk
+import pymunk as cymunk
+from pymunk import Vec2d
+
 from kivy.graphics import Color, Ellipse, Rectangle, Rotate, Line
 from kivy.properties import DictProperty, ListProperty
 
@@ -31,7 +33,7 @@ class Renderer:
         # create 4 segments that will act as a bounds
         for x in xrange(4):
             seg = cymunk.Segment(space.static_body,
-                    cymunk.Vec2d(0, 0), cymunk.Vec2d(0, 0), 10.0)
+                    Vec2d(0, 0), Vec2d(0, 0), 10.0)
             seg.elasticity = 0.6
             #seg.friction = 1.0
             self.space_bounds.append(seg)
@@ -52,13 +54,13 @@ class Renderer:
         self.space.remove(c)
         self.space.remove(d)
         a = cymunk.Segment(space.static_body,
-                    cymunk.Vec2d(x0, y0), cymunk.Vec2d(x1, y0), 10.0)
+                    Vec2d(x0, y0), Vec2d(x1, y0), 10.0)
         b = cymunk.Segment(space.static_body,
-                    cymunk.Vec2d(x1, y0), cymunk.Vec2d(x1, y1), 10.0)
+                    Vec2d(x1, y0), Vec2d(x1, y1), 10.0)
         c = cymunk.Segment(space.static_body,
-                    cymunk.Vec2d(x1, y1), cymunk.Vec2d(x0, y1), 10.0)
+                    Vec2d(x1, y1), Vec2d(x0, y1), 10.0)
         d = cymunk.Segment(space.static_body,
-                    cymunk.Vec2d(x0, y1), cymunk.Vec2d(x0, y0), 10.0)
+                    Vec2d(x0, y1), Vec2d(x0, y0), 10.0)
         self.space.add(a)
         self.space.add(b)
         self.space.add(c)
@@ -91,12 +93,12 @@ class Renderer:
             else: print body
 
         for joint in self.space.constraints:
-            
+            # print joint.anchr1, joint.anchr2
             if isinstance(joint, cymunk.constraint.PivotJoint):
-                pos = joint.anchor2["x"]-PIN_RADIUS,\
-                      joint.anchor2["y"]-PIN_RADIUS
+                pos = joint.anchr2.x-PIN_RADIUS,\
+                      joint.anchr2.y-PIN_RADIUS
                 if joint in self.joints_drawn:
-                    pass
+                    self.joints_drawn[joint].pos = pos
                 else:
                     with self.parent.canvas:
                         Color(*get_rand_color(), mode="rgba")
@@ -105,8 +107,11 @@ class Renderer:
                             size=(2*PIN_RADIUS, 2*PIN_RADIUS))
             else:
                 lpoints = [
-                    joint.anchor1["x"], joint.anchor1["y"],
-                    joint.anchor2["x"], joint.anchor2["y"]]
+                    joint.a.position.x+joint.anchr1.x, 
+                        joint.a.position.y+joint.anchr1.y,
+                    joint.b.position.x+joint.anchr2.x, 
+                        joint.b.position.y+joint.anchr2.y]
+                # print lpoints
                 if joint in self.joints_drawn:
                     self.joints_drawn[joint].points = lpoints
                 else:
@@ -114,7 +119,8 @@ class Renderer:
                         Color(*get_rand_color(), mode="rgba")
                         self.joints_drawn[joint] = \
                             Line(points=lpoints,
-                                 width=10)
+                                 width=LINE_WIDTH)
+                        # print "added a line"
 
 
     def add_circle(self, x, y, radius, random_color):
