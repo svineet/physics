@@ -2,9 +2,11 @@ import pymunk as cymunk
 from pymunk import Vec2d
 
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.image import Image
 from kivy.uix.button import Button
 from kivy.uix.behaviors import ButtonBehavior
+from kivy.uix.scrollview import ScrollView
 
 from kivy.graphics import Ellipse, Color, Line, Rectangle
 from kivy.utils import get_color_from_hex
@@ -313,6 +315,9 @@ class AntiGravityTool(Tool):
     def click_button_cb(self):
         gnow = self.game.get_space().gravity[1]
         self.game.get_space().gravity = (0, -gnow)
+        print gnow
+        for b in self.game.get_space().bodies:
+            b.activate()
 
 
 class EraserTool(Tool):
@@ -402,6 +407,8 @@ class SublimeButton(Button):
         super(SublimeButton, self).__init__(**kw)
 
         self.background_color = [0, 0, 0, 0]
+        self.size_hint = None, 1
+        self.width = 100
 
     def activated(self):
         # self.background_color = 
@@ -414,18 +421,34 @@ class ToolBox(BoxLayout):
     def __init__(self, **kw):
         super(ToolBox, self).__init__(**kw)
 
+        revealer = SublimeButton(
+            text="Tools",
+            size_hint=(0.8 ,1),
+            on_press=self.toggle_tool_visible)
+
+        self.add_widget(revealer)
+        
         self.tools_visible = False
+
+        self.scroller = ScrollView(size_hint=(1, 1))
+
+        self.scroll_box = GridLayout(rows=1, size_hint=(None, 1))
+        self.scroll_box.bind(
+            minimum_width=self.scroll_box.setter('width'))
 
         pause_res = SublimeButton(
             text="Pause",
             on_press=self.toogle_game_play_pause)
         self.pause_res = pause_res
-        self.tool_btns = [pause_res]
+        self.scroll_box.add_widget(pause_res)
+
         for tool in all_tools:
             b = SublimeButton()
             b.text = tool.name
             b.bind(on_press=partial(self.button_cb, tool.name))
-            self.tool_btns.append(b)
+
+            self.scroll_box.add_widget(b)
+        self.scroller.add_widget(self.scroll_box)
 
     def button_cb(self, tool_name, *args):
         game = self.parent.parent.ids.game
@@ -434,14 +457,12 @@ class ToolBox(BoxLayout):
         else:
             game.set_tool(tool_name)
 
-    def toggle_tool_visible(self):
+    def toggle_tool_visible(self, *args):
         if self.tools_visible:
-            for btn in self.tool_btns:
-                self.remove_widget(btn)
+            self.remove_widget(self.scroller)
             self.tools_visible = False
         elif not self.tools_visible:
-            for btn in self.tool_btns:
-                self.add_widget(btn)
+            self.add_widget(self.scroller)
             self.tools_visible = True
 
     def toogle_game_play_pause(self, *args):
