@@ -8,7 +8,7 @@ from kivy.properties import DictProperty, ListProperty
 from utils import random_color as get_rand_color
 
 FRICTION = 0.5
-PIN_RADIUS = 5
+PIN_RADIUS = 4
 from tools import LINE_WIDTH
 
 CIRCLE_TYPE = 1
@@ -105,6 +105,8 @@ class Renderer:
                         self.joints_drawn[joint] = Ellipse(
                             pos=pos,
                             size=(2*PIN_RADIUS, 2*PIN_RADIUS))
+            elif isinstance(joint, cymunk.constraint.SimpleMotor):
+                pass
             else:
                 lpoints = [
                     joint.a.position.x+joint.anchr1.x, 

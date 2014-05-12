@@ -39,7 +39,7 @@ class PhysicsGame(Widget):
     def step(self, dt):
         if self.game_state==RUNNING:
             self.renderer.space.step(1 / 30.)
-            self.renderer.update_objects()
+        self.renderer.update_objects()
 
     def on_touch_down(self, touch):
         self.current_tool.on_touch_down(touch)
@@ -55,6 +55,9 @@ class PhysicsGame(Widget):
 
     def toggle_game_state(self):
         self.game_state = RUNNING if self.game_state==PAUSED else PAUSED
+
+    def game_paused(self):
+        return self.game_state
 
     def get_space(self):
         return self.renderer.space

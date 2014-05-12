@@ -15,6 +15,7 @@ Builder.load_file('kv/tools.kv')
 import utils
 
 LINE_WIDTH = 1.1
+MOTOR_VELOCITY = -10
 
 
 class Tool:
@@ -203,6 +204,35 @@ class PinTool(Tool):
             space.add(joint)
 
 
+class MotorTool(Tool):
+    name = "motor"
+    icon = "resources/pin.png"
+
+    def __init__(self, game):
+        self.game = game
+
+    def draw(self, x, y):
+        pass
+
+    def on_touch_down(self, touch):
+        x, y = touch.x, touch.y
+        space = self.game.get_space()
+        shape = space.point_query_first(Vec2d(x, y))
+        if shape is None:
+            print "lel u iz mudi egent or wat? i wll roit ur houze fr da lulz."+\
+                  " heuhuehhue"
+        else:
+            body = shape.body
+            joint = cymunk.constraint.SimpleMotor(body,
+                                             space.static_body,
+                                             MOTOR_VELOCITY)
+            joint2 = cymunk.constraint.PivotJoint(body,
+                                             space.static_body,
+                                             Vec2d(x, y))
+
+            space.add([joint, joint2])
+
+
 
 class JointTool(Tool):
     name = "joint_tool"
@@ -273,6 +303,16 @@ class JointTool(Tool):
         self.draw_line = None
 
 
+class AntiGravityTool(Tool):
+    name = "reverse_gravity"
+    icon = "resources/gravity.png"
+
+    def __init__(self, game):
+        self.game = game
+
+    def click_button_cb(self):
+        gnow = self.game.get_space().gravity[1]
+        self.game.get_space().gravity = (0, -gnow)
 
 
 class EraserTool(Tool):
@@ -318,9 +358,10 @@ class EraserTool(Tool):
                 if c.a is body or c.b is body:
                     check_joints = True
                     j = c
-                    self.game.canvas.remove(
-                        self.game.renderer.joints_drawn[j])
-                    del self.game.renderer.joints_drawn[j]
+                    if not isinstance(j, cymunk.constraint.SimpleMotor):
+                        self.game.canvas.remove(
+                            self.game.renderer.joints_drawn[j])
+                        del self.game.renderer.joints_drawn[j]
                     break
 
             if check_joints:
@@ -349,10 +390,11 @@ all_tools = [
     CircleTool,
     RectangleTool,
     PinTool,
+    MotorTool,
     JointTool,
+    AntiGravityTool,
     EraserTool
 ]
-total_btns = len(all_tools)+1
 
 
 class SublimeButton(Button):
@@ -373,9 +415,11 @@ class ToolBox(BoxLayout):
         super(ToolBox, self).__init__(**kw)
 
         self.tools_visible = False
+
         pause_res = SublimeButton(
-            text="Pause/Resume",
+            text="Pause",
             on_press=self.toogle_game_play_pause)
+        self.pause_res = pause_res
         self.tool_btns = [pause_res]
         for tool in all_tools:
             b = SublimeButton()
@@ -384,13 +428,16 @@ class ToolBox(BoxLayout):
             self.tool_btns.append(b)
 
     def button_cb(self, tool_name, *args):
-        self.parent.parent.ids.game.set_tool(tool_name)
+        game = self.parent.parent.ids.game
+        if hasattr(game.tools[tool_name], 'click_button_cb'):
+            game.tools[tool_name].click_button_cb()
+        else:
+            game.set_tool(tool_name)
 
     def toggle_tool_visible(self):
         if self.tools_visible:
             for btn in self.tool_btns:
                 self.remove_widget(btn)
-            self.width = self.ids.revealer.width+2
             self.tools_visible = False
         elif not self.tools_visible:
             for btn in self.tool_btns:
@@ -398,5 +445,9 @@ class ToolBox(BoxLayout):
             self.tools_visible = True
 
     def toogle_game_play_pause(self, *args):
-        self.parent.parent.ids.game.toggle_game_state()
-
+        game = self.parent.parent.ids.game
+        game.toggle_game_state()
+        if game.game_paused()==1:
+            self.pause_res.text = "Pause"
+        else:
+            self.pause_res.text = "Resume"
