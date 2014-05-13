@@ -2,10 +2,11 @@ import math
 import pymunk as cymunk
 from pymunk import Vec2d
 
-from kivy.graphics import Color, Ellipse, Rectangle, Rotate, Line
+from kivy.graphics import Color, Ellipse, Rectangle, Rotate, Line, Triangle
 from kivy.properties import DictProperty, ListProperty
 
 from utils import random_color as get_rand_color
+from utils import distance, calc_center
 
 FRICTION = 0.5
 PIN_RADIUS = 4
@@ -13,6 +14,7 @@ from tools import LINE_WIDTH
 
 CIRCLE_TYPE = 1
 RECT_TYPE = 2
+TRIANGLE_TYPE = 3
 
 
 class Renderer:
@@ -76,10 +78,16 @@ class Renderer:
 
             if data["type"]==CIRCLE_TYPE:
                 rad = data["radius"]
-                canvas_instruction = data["instruction"][0]
+                canvas_instruction, rot, unrot = data["instruction"]
+
+                rot.angle = math.degrees(body.angle)
+                rot.origin = p.x, p.y
 
                 canvas_instruction.pos = p.x-rad, p.y-rad
                 canvas_instruction.size = rad*2, rad*2
+
+                unrot.angle = -math.degrees(body.angle)
+                unrot.origin = p.x, p.y
             elif data["type"]==RECT_TYPE:
                 rect, rotater, unrotater = data["instruction"]
                 size = data["size"]
@@ -90,6 +98,24 @@ class Renderer:
                 rect.size = size
                 unrotater.angle = -math.degrees(body.angle)
                 unrotater.origin = p.x, p.y
+            elif data["type"]==TRIANGLE_TYPE:
+                rect, rotater, unrotater = data["instruction"]
+                vertices = data["shapes"][0].get_vertices()
+                center = cymunk.util.calc_center(vertices)
+                # print 
+                # print center
+                # print (p.x, p.y)
+
+                rotater.angle = math.degrees(body.angle)
+                rotater.origin = center
+
+                points2 = []
+                for t in vertices:
+                    points2.extend([t.x, t.y])
+
+                rect.points = points2
+                unrotater.angle = -math.degrees(body.angle)
+                unrotater.origin = center
             else: print body
 
         for joint in self.space.constraints:
@@ -135,13 +161,15 @@ class Renderer:
 
         with self.parent.canvas.before:
             color = Color(*random_color, mode="rgba")
+            rot = Rotate(angle=0, axis=(0, 0, 1), origin=(x, y))
             rect = Ellipse(
                 pos=(x-radius, y-radius),
                 size=(radius*2, radius*2))
+            unrot = Rotate(0, (0, 0, 1), origin=(x, y))
         body.data = {
             "radius": radius, 
             "color": color,
-            "instruction": [rect],
+            "instruction": [rect, rot, unrot],
             "type": CIRCLE_TYPE,
             "shapes": [circle]
         }
@@ -170,3 +198,27 @@ class Renderer:
             "type": RECT_TYPE,
             "shapes": [rect_shape]
         }
+
+    def add_triangle(self, vertices, random_color):
+        vbackup = vertices
+        vertices  = zip(vertices[::2], vertices[1::2])
+        center = cymunk.util.calc_center(vertices)
+        body = cymunk.Body(100,
+            cymunk.moment_for_poly(100, vertices))
+        # body.position = center[0], center[1]
+        triangle = cymunk.Poly(body, vertices)
+        triangle.elasticity = 0.6
+        triangle.friction = FRICTION
+        self.space.add(body, triangle)
+
+        with self.parent.canvas.before:
+            color = Color(*random_color, mode="rgba")
+            rot = Rotate(angle=0, axis=(0, 0, 1), origin=center)
+            triangle_shape = Triangle(points=vbackup)
+            unrot = Rotate(0, (0, 0, 1), origin=center)
+        body.data = {
+            "color": color,
+            "instruction": [triangle_shape, rot, unrot],
+            "type": TRIANGLE_TYPE,
+            "shapes": [triangle],
+        }    

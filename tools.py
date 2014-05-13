@@ -8,7 +8,7 @@ from kivy.uix.button import Button
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.scrollview import ScrollView
 
-from kivy.graphics import Ellipse, Color, Line, Rectangle
+from kivy.graphics import Ellipse, Color, Line, Rectangle, Triangle
 from kivy.utils import get_color_from_hex
 
 from kivy.lang import Builder
@@ -180,6 +180,75 @@ class RectangleTool(Tool):
         self.final_pos = None
 
 
+class TriangleTool(Tool):
+    name = "triangle"
+    icon = "resources/circle.svg"
+
+    def __init__(self, game):
+        self.game = game
+
+        self.draw_altitude = None
+        self.draw_triangle = None
+
+        self.init_pos = None
+        self.final_pos = None
+        self.saved = None
+
+    def draw(self, x, y):
+        x1, y1 = self.init_pos
+
+        if self.draw_triangle is not None:
+            mouse_x_y = x, y
+
+            vertices = utils.constructTriangleFromLine(self.init_pos, mouse_x_y)
+            self.draw_triangle.points = vertices
+            self.draw_altitude.points = [x, y, x1, y1]
+        else:
+            with self.game.canvas:
+                self.color = utils.random_color()
+                Color(*self.color, mode="rgba")
+                self.draw_triangle = Triangle(
+                    points=utils.get_triangle_points(x1, y1, x, y))
+                Color(*utils.random_color(), mode="rgba")
+                self.draw_altitude = \
+                    Line(points=[x1, y1, x, y],
+                         width=LINE_WIDTH, cap="square")
+
+
+
+    def on_touch_down(self, touch):
+        self.init_pos = touch.x, touch.y
+
+    def on_touch_up(self, touch):
+        if self.init_pos is None:
+            return
+
+        self.final_pos = touch.x, touch.y
+        x1, y1 = self.init_pos
+        d = int(utils.distance(self.final_pos, self.init_pos))
+        
+        mouse_x_y = touch.x, touch.y
+        if d>20:
+            vertices = utils.constructTriangleFromLine(self.init_pos,
+                                                   mouse_x_y)
+            self.game.renderer.add_triangle(vertices, self.color)
+            self.saved = d
+        elif self.saved is not None:
+            vertices = utils.constructTriangleFromLine(
+                self.init_pos,
+                (self.init_pos[0], self.init_pos[1]-self.saved))
+            self.game.renderer.add_triangle(vertices, self.color)
+
+        if self.draw_altitude is not None and self.draw_triangle is not None:
+            self.game.canvas.remove(self.draw_altitude)
+            self.game.canvas.remove(self.draw_triangle)
+
+        self.draw_altitude = None
+        self.draw_triangle = None
+        self.init_pos = None
+        self.final_pos = None
+
+
 class PinTool(Tool):
     name = "pin"
     icon = "resources/pin.png"
@@ -315,7 +384,7 @@ class AntiGravityTool(Tool):
     def click_button_cb(self):
         gnow = self.game.get_space().gravity[1]
         self.game.get_space().gravity = (0, -gnow)
-        print gnow
+        # print gnow
         for b in self.game.get_space().bodies:
             b.activate()
 
@@ -394,6 +463,7 @@ class EraserTool(Tool):
 all_tools = [
     CircleTool,
     RectangleTool,
+    TriangleTool,
     PinTool,
     MotorTool,
     JointTool,
