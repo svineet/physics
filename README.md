@@ -11,7 +11,7 @@ Setup
 pip install -r requirements.txt
 ```
 
-And `python main.py`
+And `python main.py`  
 No hardware specific features. Only PC supported for now.
 
 
@@ -41,12 +41,13 @@ What doesn't work:
 * Triangles don't behave properly. I've looked into the issue, I couldn't find the problem. 
 
 
-> Therefore the Master
-> acts without doing anything
-> and teaches without saying anything.
-> Things arise and she lets them come;
-> things disappear and she lets them go.
-> She has but doesn't possess,
-> acts but doesn't expect.
-> When her work is done, she forgets it.
-> That is why it lasts forever.
+> Therefore the Master  
+> acts without doing anything  
+> and teaches without saying anything.  
+> Things arise and she lets them come;  
+> things disappear and she lets them go.  
+> She has but doesn't possess,  
+> acts but doesn't expect.  
+> When her work is done, she forgets it.  
+> That is why it lasts forever.  
+> - _Tao Te Ching_ , Stephen Mitchell translation
