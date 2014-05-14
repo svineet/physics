@@ -4,5 +4,15 @@
 <ToolBox>:
     orientation: 'horizontal'
 
-    SublimeButton:
-        id: revealer
+
+<SublimeButton>:
+    background_color: self.def_color
+    size_hint: None, 1
+    width: 150
+
+    color: [0, 0, 0, 1]
+    font_name: "kv/resources/Raleway-Regular.ttf"
+    markup: True
+
+    on_press: self.activated()
+    on_release: self.deactivated()

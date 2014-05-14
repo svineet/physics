@@ -32,7 +32,7 @@ class PhysicsGame(Widget):
         for t in all_tools:
             self.tools[t.name] = t(self)
 
-        self.current_tool = self.tools["circle"]
+        self.current_tool = self.tools["Circle"]
 
         Clock.schedule_interval(self.step, 1 / 30.)
 

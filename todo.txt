@@ -1,28 +1,26 @@
 Bug:
 
 * Toolbar is ugly
-* Toolbar scrolling, too many tools to fit in one place.
 * Implement active state of buttons
 * Ground is not visible. There are segments all around. There should only be one ground body, no other static bodies.
 * Wierd behaviour with the motor tool.
   Excuse: Pymunk problem. Probably Un-fixable without a really hard to make hack.
+* Triangle crazy (kovak halp)
+  Excuse: idk whats happenin
+* Joint rotation problems (kovak halp pls. pls. pls. ...---...)
+  Excuse: idk whats happenin
 
-Enhancement:
-
-* Pen
 
 Critical tools to be implemented:
 
 * Grabber
-* Polygon, would make drawing easier.
-* Triangle if time be
-* Motor
-* Pen, would be awesome
+V.I. ^^
 
 * Android support, cymunk error removal
+  Hard one this.
+  But opens up gravity with accelerometer feature.
 
 Android support problems:
 
-* Rect not working
+* Rect not working. Poly not working.
 * major inconsistencies with pymunk api causes problems
-*

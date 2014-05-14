@@ -33,7 +33,7 @@ class Renderer:
         space.collision_slop = 0.5
 
         # create 4 segments that will act as a bounds
-        for x in xrange(4):
+        for x in xrange(2):
             seg = cymunk.Segment(space.static_body,
                     Vec2d(0, 0), Vec2d(0, 0), 10.0)
             seg.elasticity = 0.6
@@ -45,35 +45,28 @@ class Renderer:
         self.update_bounds()
 
     def update_bounds(self, *largs):
-        assert(len(self.space_bounds) == 4)
-        a, b, c, d = self.space_bounds
+        assert(len(self.space_bounds) == 2)
+        a, b = self.space_bounds
         x0, y0 = self.parent.pos
         x1 = self.parent.right
         y1 = self.parent.top
         space = self.space
         self.space.remove(a)
         self.space.remove(b)
-        self.space.remove(c)
-        self.space.remove(d)
         a = cymunk.Segment(space.static_body,
                     Vec2d(x0, y0), Vec2d(x1, y0), 10.0)
         b = cymunk.Segment(space.static_body,
-                    Vec2d(x1, y0), Vec2d(x1, y1), 10.0)
-        c = cymunk.Segment(space.static_body,
                     Vec2d(x1, y1), Vec2d(x0, y1), 10.0)
-        d = cymunk.Segment(space.static_body,
-                    Vec2d(x0, y1), Vec2d(x0, y0), 10.0)
         self.space.add(a)
         self.space.add(b)
-        self.space.add(c)
-        self.space.add(d)
-        self.space_bounds = [a, b, c, d] 
+        self.space_bounds = [a, b] 
         for x in self.space_bounds:
             x.friction = FRICTION
 
     def update_objects(self):
         for body in self.space.bodies:
             data = body.data
+            # print body
             p = body.position
 
             if data["type"]==CIRCLE_TYPE:
@@ -205,7 +198,6 @@ class Renderer:
         center = cymunk.util.calc_center(vertices)
         body = cymunk.Body(100,
             cymunk.moment_for_poly(100, vertices))
-        # body.position = center[0], center[1]
         triangle = cymunk.Poly(body, vertices)
         triangle.elasticity = 0.6
         triangle.friction = FRICTION

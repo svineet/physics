@@ -41,7 +41,7 @@ class Tool:
 
 
 class CircleTool(Tool):
-    name = "circle"
+    name = "Circle"
     icon = "resources/circle.svg"
 
     def __init__(self, game):
@@ -111,7 +111,7 @@ class CircleTool(Tool):
 
 
 class RectangleTool(Tool):
-    name = "rectangle"
+    name = "Rectangle"
     icon = "resources/circle.svg"
 
     def __init__(self, game):
@@ -181,7 +181,8 @@ class RectangleTool(Tool):
 
 
 class TriangleTool(Tool):
-    name = "triangle"
+    name = """Triangle
+[color=ff0000]Experimental[/color]"""
     icon = "resources/circle.svg"
 
     def __init__(self, game):
@@ -250,7 +251,7 @@ class TriangleTool(Tool):
 
 
 class PinTool(Tool):
-    name = "pin"
+    name = "Pin"
     icon = "resources/pin.png"
 
     def __init__(self, game):
@@ -276,7 +277,7 @@ class PinTool(Tool):
 
 
 class MotorTool(Tool):
-    name = "motor"
+    name = "Motor"
     icon = "resources/pin.png"
 
     def __init__(self, game):
@@ -306,7 +307,7 @@ class MotorTool(Tool):
 
 
 class JointTool(Tool):
-    name = "joint_tool"
+    name = "Joint"
     icon = "resources/joint.png"
 
     def __init__(self, game):
@@ -374,8 +375,77 @@ class JointTool(Tool):
         self.draw_line = None
 
 
+class GrabTool(Tool):
+    name = "Grab"
+    icon = "resources/grab.png"
+
+    def __init__(self, game):
+        self.game = game
+        self.space = self.game.get_space()
+        self.draw_line = None
+
+        self.clean_up()
+
+    def draw(self, x, y):
+        if self.draw_line is not None:
+            self.draw_line.points = [self.init_pos[0], self.init_pos[1], x, y]
+        elif self.init_pos:
+            with self.game.canvas.after:
+                Color(*utils.random_color(), mode="rgba")
+                self.draw_line = \
+                    Line(points=[self.init_pos[0], self.init_pos[1], x, y],
+                         width=LINE_WIDTH)
+
+    def on_touch_down(self, touch):
+        shape = self.space.point_query_first(Vec2d(touch.x, touch.y))
+        if shape is None:
+            print "lel u iz mudi egent or wat? i wll roit ur houze fr da lulz."+\
+                  " heuhuehhue"
+            self.clean_up()
+        else:
+            self.init_pos = (touch.x, touch.y)
+            self.body1 = shape.body
+
+    def on_touch_up(self, touch):
+        shape = self.space.point_query_first(Vec2d(touch.x, touch.y))
+        if shape is None:
+            print "lel u iz mudi egent or wat? i wll roit ur houze fr da lulz."+\
+                  " heuhuehhue"
+        else:
+            self.final_pos = (touch.x, touch.y)
+            self.body2 = shape.body
+
+            ix, iy = self.init_pos
+            fx, fy = self.final_pos
+            x1, y1 = self.body1.position.x, self.body1.position.y
+            x2, y2 = self.body2.position.x, self.body2.position.y
+            anchr1 = (ix-x1, iy-y1)
+            anchr2 = (fx-x2, fy-y2)
+
+
+            joint = cymunk.PinJoint(
+                self.body1, self.body2,
+                anchr1, anchr2
+                )
+
+            self.space.add(joint)
+        self.clean_up()
+
+    def clean_up(self):
+        self.init_pos = None
+        self.body1 = None
+        self.final_pos = None
+        self.body2 = None
+
+        if self.draw_line is not None:
+            self.game.canvas.after.remove(self.draw_line)
+            # print "Removed that shitty line"
+
+        self.draw_line = None
+
+
 class AntiGravityTool(Tool):
-    name = "reverse_gravity"
+    name = "Anti Gravity"
     icon = "resources/gravity.png"
 
     def __init__(self, game):
@@ -390,7 +460,7 @@ class AntiGravityTool(Tool):
 
 
 class EraserTool(Tool):
-    name = "eraser"
+    name = "Eraser"
     icon = "resources/pin.png"
 
     def __init__(self, game):
@@ -472,17 +542,21 @@ all_tools = [
 ]
 
 
+from kivy.properties import ObjectProperty
 class SublimeButton(Button):
+    on_press1 = ObjectProperty(lambda *a: a)
+    def_color = [1, 0.7, 0, 0]
+
     def __init__(self, **kw):
         super(SublimeButton, self).__init__(**kw)
 
-        self.background_color = [0, 0, 0, 0]
-        self.size_hint = None, 1
-        self.width = 100
-
     def activated(self):
-        # self.background_color = 
-        pass
+        self.background_color = \
+            [0.2, 0.7098039215686275, 0.8980392156862745, 0.7]
+
+    def deactivated(self):
+        self.on_press1()
+        self.background_color = self.def_color
 
 
 from functools import partial
@@ -494,7 +568,7 @@ class ToolBox(BoxLayout):
         revealer = SublimeButton(
             text="Tools",
             size_hint=(0.8 ,1),
-            on_press=self.toggle_tool_visible)
+            on_press1=self.toggle_tool_visible)
 
         self.add_widget(revealer)
         
@@ -506,16 +580,15 @@ class ToolBox(BoxLayout):
         self.scroll_box.bind(
             minimum_width=self.scroll_box.setter('width'))
 
-        pause_res = SublimeButton(
-            text="Pause",
-            on_press=self.toogle_game_play_pause)
+        pause_res = SublimeButton(text="Pause")
+        pause_res.on_press1 = self.toogle_game_play_pause
         self.pause_res = pause_res
         self.scroll_box.add_widget(pause_res)
 
         for tool in all_tools:
             b = SublimeButton()
             b.text = tool.name
-            b.bind(on_press=partial(self.button_cb, tool.name))
+            b.on_press1=partial(self.button_cb, tool.name)
 
             self.scroll_box.add_widget(b)
         self.scroller.add_widget(self.scroll_box)
