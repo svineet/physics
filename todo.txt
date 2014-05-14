@@ -1,13 +1,7 @@
 Bug:
 
-* Toolbar is ugly
-* Implement active state of buttons
 * Ground is not visible. There are segments all around. There should only be one ground body, no other static bodies.
-* Wierd behaviour with the motor tool.
-  Excuse: Pymunk problem. Probably Un-fixable without a really hard to make hack.
 * Triangle crazy (kovak halp)
-  Excuse: idk whats happenin
-* Joint rotation problems (kovak halp pls. pls. pls. ...---...)
   Excuse: idk whats happenin
 
 
