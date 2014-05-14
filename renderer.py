@@ -20,6 +20,7 @@ TRIANGLE_TYPE = 3
 class Renderer:
 
     space_bounds = []
+    bound_rects = []
 
     def __init__(self, parent):
         self.parent = parent
@@ -44,15 +45,16 @@ class Renderer:
         # update bounds with good positions
         self.update_bounds()
 
-    def update_bounds(self, *largs):
+    def update_bounds(self, new=False, *largs):
         assert(len(self.space_bounds) == 2)
         a, b = self.space_bounds
         x0, y0 = self.parent.pos
         x1 = self.parent.right
         y1 = self.parent.top
         space = self.space
-        self.space.remove(a)
-        self.space.remove(b)
+        if not new:
+            self.space.remove(a)
+            self.space.remove(b)
         a = cymunk.Segment(space.static_body,
                     Vec2d(x0, y0), Vec2d(x1, y0), 10.0)
         b = cymunk.Segment(space.static_body,

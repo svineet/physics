@@ -498,7 +498,7 @@ class EraserTool(Tool):
             data = body.data
             check_joints = False
             j = None
-            for c in space.constraints:
+            for c in space.constraints[::-1]:
                 if c.a is body or c.b is body:
                     check_joints = True
                     j = c
@@ -530,6 +530,35 @@ class EraserTool(Tool):
         self.on_touch_down(touch)
 
 
+class EraseAllTool(Tool):
+    name = "Erase All"
+    icon = "resources/gravity.png"
+
+    def __init__(self, game):
+        self.game = game
+
+    def click_button_cb(self):
+        space = self.game.get_space()
+
+        for b in space.bodies:
+            # print b
+            ins = b.data["instruction"]
+            for i in ins:
+                self.game.canvas.before.remove(i)
+            space.remove(b)
+
+        for c in space.constraints:
+            if c in self.game.renderer.joints_drawn:
+                self.canvas.remove(self.game.renderer.joints_drawn[c])
+                del self.game.renderer.joints_drawn[c]
+            space.remove(c)
+
+        for s in space.shapes:
+            space.remove(s)
+
+        self.game.renderer.update_bounds(new=True)
+
+
 all_tools = [
     CircleTool,
     RectangleTool,
@@ -538,7 +567,8 @@ all_tools = [
     MotorTool,
     JointTool,
     AntiGravityTool,
-    EraserTool
+    EraserTool,
+    EraseAllTool
 ]
 
 
