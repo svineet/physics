@@ -1,7 +1,7 @@
-physics-android
-===============
+Physics
+=======
 
-A Physics Activity for Android, for the kivy app challenge.
+A Physics Activity in kivy, for the kivy app challenge.
 
 
 Setup
@@ -23,7 +23,7 @@ Newton's cradle, Galileo's Pisa experiment, and simple experiments like these ca
 
 I am a contributor to [Sugar Labs](http://sugarlabs.org/), an organization which develops Sugar, a learning environment which runs on 3 million laptops ("One laptop per child" initiative's XO range) worldwide in over 40 countries, including Australia, Uruguay, and a small(very small) part of India, and so many more countries.
 
-[Physics](https://github.com/walterbender/physics) is a Sugar application which is much like this one. My app is inspired by Physics and thus named so too. I am also a contributor to the Activity, and the Activity is written in Box2d and pygame, so no code copying, written from scratch :)
+[Physics](https://github.com/walterbender/physics) is a Sugar application which is much like this one. My app is inspired by Physics and thus named so too. I am also a [contributor](https://github.com/walterbender/physics/blob/master/NEWS) to the Activity, and the Activity is written in Box2d and pygame, so no code copying, written from scratch :)
 P.S: Application == Activity in Sugar jargon
 
 Go on, run it and have fun :)
