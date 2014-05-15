@@ -17,7 +17,7 @@ Builder.load_file('kv/tools.kv')
 import utils
 
 LINE_WIDTH = 1.1
-MOTOR_VELOCITY = -10
+MOTOR_VELOCITY = -50
 
 
 class Tool:
@@ -43,6 +43,7 @@ class Tool:
 class CircleTool(Tool):
     name = "Circle"
     icon = "resources/circle.svg"
+    help_text = "Drag and draw!"
 
     def __init__(self, game):
         self.game = game
@@ -113,6 +114,7 @@ class CircleTool(Tool):
 class RectangleTool(Tool):
     name = "Rectangle"
     icon = "resources/circle.svg"
+    help_text = "Drag and draw!"
 
     def __init__(self, game):
         self.game = game
@@ -184,6 +186,7 @@ class TriangleTool(Tool):
     name = """Triangle
 [color=ff0000]Experimental[/color]"""
     icon = "resources/circle.svg"
+    help_text = "Drag and draw!"
 
     def __init__(self, game):
         self.game = game
@@ -253,6 +256,7 @@ class TriangleTool(Tool):
 class PinTool(Tool):
     name = "Pin"
     icon = "resources/pin.png"
+    help_text = "Click and pin the object to the place!"
 
     def __init__(self, game):
         self.game = game
@@ -279,6 +283,7 @@ class PinTool(Tool):
 class MotorTool(Tool):
     name = "Motor"
     icon = "resources/pin.png"
+    help_text = "Click and see it spin!"
 
     def __init__(self, game):
         self.game = game
@@ -309,6 +314,7 @@ class MotorTool(Tool):
 class JointTool(Tool):
     name = "Joint"
     icon = "resources/joint.png"
+    help_text = "Attach two things together!"
 
     def __init__(self, game):
         self.game = game
@@ -378,6 +384,7 @@ class JointTool(Tool):
 class GrabTool(Tool):
     name = "Grab"
     icon = "resources/grab.png"
+    help_text = "Drag things around (Only works in Paused mode)"
 
     def __init__(self, game):
         self.game = game
@@ -387,49 +394,17 @@ class GrabTool(Tool):
         self.clean_up()
 
     def draw(self, x, y):
-        if self.draw_line is not None:
-            self.draw_line.points = [self.init_pos[0], self.init_pos[1], x, y]
-        elif self.init_pos:
-            with self.game.canvas.after:
-                Color(*utils.random_color(), mode="rgba")
-                self.draw_line = \
-                    Line(points=[self.init_pos[0], self.init_pos[1], x, y],
-                         width=LINE_WIDTH)
+        pass
 
     def on_touch_down(self, touch):
-        shape = self.space.point_query_first(Vec2d(touch.x, touch.y))
-        if shape is None:
-            print "lel u iz mudi egent or wat? i wll roit ur houze fr da lulz."+\
-                  " heuhuehhue"
-            self.clean_up()
-        else:
-            self.init_pos = (touch.x, touch.y)
-            self.body1 = shape.body
+        pass
 
     def on_touch_up(self, touch):
-        shape = self.space.point_query_first(Vec2d(touch.x, touch.y))
-        if shape is None:
-            print "lel u iz mudi egent or wat? i wll roit ur houze fr da lulz."+\
-                  " heuhuehhue"
-        else:
-            self.final_pos = (touch.x, touch.y)
-            self.body2 = shape.body
-
-            ix, iy = self.init_pos
-            fx, fy = self.final_pos
-            x1, y1 = self.body1.position.x, self.body1.position.y
-            x2, y2 = self.body2.position.x, self.body2.position.y
-            anchr1 = (ix-x1, iy-y1)
-            anchr2 = (fx-x2, fy-y2)
-
-
-            joint = cymunk.PinJoint(
-                self.body1, self.body2,
-                anchr1, anchr2
-                )
-
-            self.space.add(joint)
+        
         self.clean_up()
+
+    def on_touch_move(self, touch):
+        if not self.delta: return
 
     def clean_up(self):
         self.init_pos = None
@@ -447,6 +422,7 @@ class GrabTool(Tool):
 class AntiGravityTool(Tool):
     name = "Anti Gravity"
     icon = "resources/gravity.png"
+    help_text = "import antigravity"
 
     def __init__(self, game):
         self.game = game
@@ -462,6 +438,7 @@ class AntiGravityTool(Tool):
 class EraserTool(Tool):
     name = "Eraser"
     icon = "resources/pin.png"
+    help_text = "Drag and destroy everything in your path!"
 
     def __init__(self, game):
         self.game = game
@@ -533,6 +510,7 @@ class EraserTool(Tool):
 class EraseAllTool(Tool):
     name = "Erase All"
     icon = "resources/gravity.png"
+    help_text = "Destroyed them all!"
 
     def __init__(self, game):
         self.game = game
@@ -549,7 +527,7 @@ class EraseAllTool(Tool):
 
         for c in space.constraints:
             if c in self.game.renderer.joints_drawn:
-                self.canvas.remove(self.game.renderer.joints_drawn[c])
+                self.game.canvas.remove(self.game.renderer.joints_drawn[c])
                 del self.game.renderer.joints_drawn[c]
             space.remove(c)
 
@@ -629,6 +607,7 @@ class ToolBox(BoxLayout):
             game.tools[tool_name].click_button_cb()
         else:
             game.set_tool(tool_name)
+        game.show_help_text(game.tools[tool_name].help_text)
 
     def toggle_tool_visible(self, *args):
         if self.tools_visible:

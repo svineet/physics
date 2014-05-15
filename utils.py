@@ -3,6 +3,26 @@ import random
 from kivy.utils import get_color_from_hex
 
 
+# copied from SO
+def rotate_point_around_point(cx, cy, angle, p):
+    s = math.sin(angle);
+    c = math.cos(angle);
+
+    # // translate point back to origin:
+    p[0] -= cx;
+    p[1] -= cy;
+
+    # // rotate point
+    xnew = p[0] * c - p[1] * s;
+    ynew = p[0] * s + p[1] * c;
+
+    # // translate point back:
+    p[0] = xnew + cx;
+    p[1] = ynew + cy;
+
+    return p
+
+
 def distance((x1, y1), (x2, y2)):
     return math.sqrt((x1-x2)**2+(y1-y2)**2)
 
@@ -33,7 +53,7 @@ def get_triangle_points(x, y, x2, y2):
 
     return [x2-hs, y2, x2+hs, y2, x, y]
 
-
+# From Physics Activity (original for Sugar)
 def constructTriangleFromLine(p1, p2):
     """
     Returns list of ordered pairs describing equilteral triangle around

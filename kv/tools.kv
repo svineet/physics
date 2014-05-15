@@ -4,6 +4,15 @@
 <ToolBox>:
     orientation: 'horizontal'
 
+    canvas.after:
+        Color:
+            rgba: [0.2, 0.7098039215686275, 0.8980392156862745, 0.4]
+
+        Line:
+            points: [self.pos[0], self.pos[1], self.size[0], self.pos[1]]
+            width: 3
+            cap: 'round'
+
 
 <SublimeButton>:
     background_color: self.def_color

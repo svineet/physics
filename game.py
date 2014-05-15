@@ -9,13 +9,13 @@ from tools import *
 from kivy.lang import Builder
 Builder.load_file('kv/game.kv')
 
+HELP_MESSAGE_TIME = 3
 
 PAUSED = 0
 RUNNING = 1
 
 
 class PhysicsGame(Widget):
-    toolbox = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(PhysicsGame, self).__init__(**kwargs)
@@ -33,12 +33,14 @@ class PhysicsGame(Widget):
             self.tools[t.name] = t(self)
 
         self.current_tool = self.tools["Circle"]
+        self.help_scheduled = False
 
-        Clock.schedule_interval(self.step, 1 / 30.)
+        Clock.schedule_once(self.remove_help_text, HELP_MESSAGE_TIME)
+        Clock.schedule_interval(self.step, 1/30.)
 
     def step(self, dt):
         if self.game_state==RUNNING:
-            self.renderer.space.step(1 / 30.)
+            self.renderer.space.step(1/30.)
         self.renderer.update_objects()
 
     def on_touch_down(self, touch):
@@ -61,3 +63,15 @@ class PhysicsGame(Widget):
 
     def get_space(self):
         return self.renderer.space
+
+    def remove_help_text(self, dt, *args):
+        self.parent.ids.help_text_label.opacity = 0
+        self.help_scheduled = False
+
+    def show_help_text(self, text):
+        self.parent.ids.help_text_label.text = text
+        self.parent.ids.help_text_label.opacity = 1
+        if self.help_scheduled:
+            Clock.unschedule(self.remove_help_text)
+        self.help_scheduled = True
+        Clock.schedule_once(self.remove_help_text, HELP_MESSAGE_TIME)

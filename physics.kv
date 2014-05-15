@@ -31,3 +31,23 @@
         ToolBox:
             id: toolbox
             pos_hint: None, None
+
+    AnchorLayout:
+        id: help_container
+
+        size: root.size
+        pos: 0, 0
+
+        anchor_x: "center"
+        anchor_y: "bottom"
+
+        Label:
+            id: help_text_label
+
+            size_hint: None, None
+            size: root.width/2, root.height/10
+
+            text: "Hi! Click on Tools and start doodling!"
+            font_name: "kv/resources/Raleway-SemiBold.ttf"
+            font_size: 24
+            color: [0, 0, 0, 1]

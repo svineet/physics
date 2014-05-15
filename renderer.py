@@ -102,7 +102,7 @@ class Renderer:
                 # print (p.x, p.y)
 
                 rotater.angle = math.degrees(body.angle)
-                rotater.origin = center
+                rotater.origin = p.x, p.y
 
                 points2 = []
                 for t in vertices:
@@ -110,7 +110,7 @@ class Renderer:
 
                 rect.points = points2
                 unrotater.angle = -math.degrees(body.angle)
-                unrotater.origin = center
+                unrotater.origin = p.x, p.y
             else: print body
 
         for joint in self.space.constraints:
@@ -129,12 +129,11 @@ class Renderer:
             elif isinstance(joint, cymunk.constraint.SimpleMotor):
                 pass
             else:
-                lpoints = [
-                    joint.a.position.x+joint.anchr1.x, 
-                        joint.a.position.y+joint.anchr1.y,
-                    joint.b.position.x+joint.anchr2.x, 
-                        joint.b.position.y+joint.anchr2.y]
-                # print lpoints
+                p1 = joint.a.position + joint.anchr1.rotated(joint.a.angle)
+                p2 = joint.b.position + joint.anchr2.rotated(joint.b.angle)
+
+                lpoints = [p1.x, p1.y, p2.x, p2.y]
+
                 if joint in self.joints_drawn:
                     self.joints_drawn[joint].points = lpoints
                 else:
@@ -143,7 +142,7 @@ class Renderer:
                         self.joints_drawn[joint] = \
                             Line(points=lpoints,
                                  width=LINE_WIDTH)
-                        # print "added a line"
+
 
 
     def add_circle(self, x, y, radius, random_color):

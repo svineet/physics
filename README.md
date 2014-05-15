@@ -15,6 +15,21 @@ And `python main.py`
 No hardware specific features. Only PC supported for now.
 
 
+Get Started
+-----------
+
+Reveal toolbar by clicking on Tools.   
+Select a tool and start doodling!
+
+Features which are somewhat hard to see:
+* if you've drawn a shape before, then its saved. Like if you draw a circle and then click anywhere, the same one you drew before will again be drawn. This makes it easy to duplicate stuff.
+* The eraser tool is like a pen. Drag with it and everything in the path is destroyed! So fun!
+
+All else can be discovered easily I think.
+
+[Ideas to try (see introduction below for why I am pointing you to this page)](http://wiki.sugarlabs.org/go/Activities/Physics#Ideas_to_try)
+
+
 Introduction
 ------------
 
