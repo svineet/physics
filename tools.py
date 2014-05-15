@@ -17,7 +17,7 @@ Builder.load_file('kv/tools.kv')
 import utils
 
 LINE_WIDTH = 1.1
-MOTOR_VELOCITY = -50
+MOTOR_VELOCITY = -25
 
 
 class Tool:
@@ -269,8 +269,9 @@ class PinTool(Tool):
         space = self.game.get_space()
         shape = space.point_query_first(Vec2d(x, y))
         if shape is None:
-            print "lel u iz mudi egent or wat? i wll roit ur houze fr da lulz."+\
-                  " heuhuehhue"
+            # print "lel u iz mudi egent or wat? i wll roit ur houze fr da lulz."+\
+                  # " heuhuehhue"
+            pass
         else:
             body = shape.body
             joint = cymunk.constraint.PivotJoint(body,
@@ -296,8 +297,9 @@ class MotorTool(Tool):
         space = self.game.get_space()
         shape = space.point_query_first(Vec2d(x, y))
         if shape is None:
-            print "lel u iz mudi egent or wat? i wll roit ur houze fr da lulz."+\
-                  " heuhuehhue"
+            # print "lel u iz mudi egent or wat? i wll roit ur houze fr da lulz."+\
+                  # " heuhuehhue"
+            pass
         else:
             body = shape.body
             joint = cymunk.constraint.SimpleMotor(body,
@@ -336,8 +338,8 @@ class JointTool(Tool):
     def on_touch_down(self, touch):
         shape = self.space.point_query_first(Vec2d(touch.x, touch.y))
         if shape is None:
-            print "lel u iz mudi egent or wat? i wll roit ur houze fr da lulz."+\
-                  " heuhuehhue"
+            # print "lel u iz mudi egent or wat? i wll roit ur houze fr da lulz."+\
+                  # " heuhuehhue"
             self.clean_up()
         else:
             self.init_pos = (touch.x, touch.y)
@@ -346,11 +348,14 @@ class JointTool(Tool):
     def on_touch_up(self, touch):
         shape = self.space.point_query_first(Vec2d(touch.x, touch.y))
         if shape is None:
-            print "lel u iz mudi egent or wat? i wll roit ur houze fr da lulz."+\
-                  " heuhuehhue"
+            # print "lel u iz mudi egent or wat? i wll roit ur houze fr da lulz."+\
+            # " heuhuehhue"
+            self.clean_up()
         else:
             self.final_pos = (touch.x, touch.y)
             self.body2 = shape.body
+
+            if self.init_pos is None: return
 
             ix, iy = self.init_pos
             fx, fy = self.final_pos
@@ -389,7 +394,7 @@ class GrabTool(Tool):
     def __init__(self, game):
         self.game = game
         self.space = self.game.get_space()
-        self.draw_line = None
+        self.delta = None
 
         self.clean_up()
 
@@ -397,7 +402,15 @@ class GrabTool(Tool):
         pass
 
     def on_touch_down(self, touch):
-        pass
+        cpos = Vec2d(x, y)
+        space = self.game.get_space()
+        shape = space.point_query_first(cpos)
+
+        if shape is not None:
+            body = shape.body
+            x1, y1 = cpos.int_tuple
+            x2, y2 = body.position.int_tuple
+            # self.delta = 
 
     def on_touch_up(self, touch):
         
@@ -520,10 +533,11 @@ class EraseAllTool(Tool):
 
         for b in space.bodies:
             # print b
-            ins = b.data["instruction"]
-            for i in ins:
-                self.game.canvas.before.remove(i)
-            space.remove(b)
+            if b is not space.static_body:
+                ins = b.data["instruction"]
+                for i in ins:
+                    self.game.canvas.before.remove(i)
+                space.remove(b)
 
         for c in space.constraints:
             if c in self.game.renderer.joints_drawn:
@@ -532,7 +546,7 @@ class EraseAllTool(Tool):
             space.remove(c)
 
         for s in space.shapes:
-            space.remove(s)
+            if s.body is not space.static_body: space.remove(s)
 
         self.game.renderer.update_bounds(new=True)
 

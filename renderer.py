@@ -52,9 +52,8 @@ class Renderer:
         x1 = self.parent.right
         y1 = self.parent.top
         space = self.space
-        if not new:
-            self.space.remove(a)
-            self.space.remove(b)
+        self.space.remove(a)
+        self.space.remove(b)
         a = cymunk.Segment(space.static_body,
                     Vec2d(x0, y0), Vec2d(x1, y0), 10.0)
         b = cymunk.Segment(space.static_body,
