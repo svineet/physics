@@ -355,7 +355,15 @@ class JointTool(Tool):
             self.final_pos = (touch.x, touch.y)
             self.body2 = shape.body
 
-            if self.init_pos is None: return
+            if self.init_pos is None:
+                self.clean_up()
+                return
+            if utils.distance(self.init_pos, self.final_pos)<10:
+                self.clean_up()
+                return
+            if self.body1 is self.body2:
+                self.clean_up()
+                return
 
             ix, iy = self.init_pos
             fx, fy = self.final_pos
