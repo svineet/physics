@@ -17,7 +17,7 @@ Builder.load_file('kv/tools.kv')
 import utils
 
 LINE_WIDTH = 1.1
-MOTOR_VELOCITY = -25
+MOTOR_VELOCITY = -20
 
 
 class Tool:
@@ -389,12 +389,11 @@ class JointTool(Tool):
 class GrabTool(Tool):
     name = "Grab"
     icon = "resources/grab.png"
-    help_text = "Drag things around (Only works in Paused mode)"
+    help_text = "Drag things around (Maybe shaky)"
 
     def __init__(self, game):
         self.game = game
         self.space = self.game.get_space()
-        self.delta = None
 
         self.clean_up()
 
@@ -402,7 +401,7 @@ class GrabTool(Tool):
         pass
 
     def on_touch_down(self, touch):
-        cpos = Vec2d(x, y)
+        cpos = Vec2d(touch.x, touch.y)
         space = self.game.get_space()
         shape = space.point_query_first(cpos)
 
@@ -410,26 +409,30 @@ class GrabTool(Tool):
             body = shape.body
             x1, y1 = cpos.int_tuple
             x2, y2 = body.position.int_tuple
-            # self.delta = 
+            self.delta = (x1-x2, y1-y2)
+            self.current_body = body
 
     def on_touch_up(self, touch):
-        
+        for b in self.space.bodies:
+            b.activate()
         self.clean_up()
 
     def on_touch_move(self, touch):
-        if not self.delta: return
+        if self.delta is None or self.current_body is None:
+            return
+
+        x, y = touch.x, touch.y
+        dx, dy = self.delta
+        posx = x-dx
+        posy = y-dy
+
+        self.current_body.position.x = posx
+        self.current_body.position.y = posy
+
 
     def clean_up(self):
-        self.init_pos = None
-        self.body1 = None
-        self.final_pos = None
-        self.body2 = None
-
-        if self.draw_line is not None:
-            self.game.canvas.after.remove(self.draw_line)
-            # print "Removed that shitty line"
-
-        self.draw_line = None
+        self.delta = None
+        self.current_body = None
 
 
 class AntiGravityTool(Tool):
@@ -555,6 +558,7 @@ all_tools = [
     CircleTool,
     RectangleTool,
     TriangleTool,
+    GrabTool,
     PinTool,
     MotorTool,
     JointTool,
