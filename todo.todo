@@ -1,0 +1,20 @@
+Main:
+  ☐ Make the splash screen, a good design
+  ☐ Make an icon
+  ☐ Keep the creative mode, so there are 2 modes
+    ☐ Creative: Do what you want, NFG
+    ☐ Game mode: Make a machine that can convey this ball from here to there (input center to output hole)
+
+Enhancements:
+  ☐ A good UI
+  ☐ Speed optimizations
+
+Bugs:
+  ☐ TRIANGLE!
+  ☐ Clean the keyboard
+  ☐ Maximize it by default
+
+
+  Android Support:
+    ☐ Port to cymunk in an branch
+    ☐ Make smaller art, an icon for mobile, some optimizations

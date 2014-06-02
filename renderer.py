@@ -194,10 +194,13 @@ class Renderer:
 
     def add_triangle(self, vertices, random_color):
         vbackup = vertices
+        vertices = [int(v) for v in vertices]
         vertices  = zip(vertices[::2], vertices[1::2])
         center = cymunk.util.calc_center(vertices)
         body = cymunk.Body(100,
             cymunk.moment_for_poly(100, vertices))
+        body.position.x = center[0]
+        body.position.y = center[1]
         triangle = cymunk.Poly(body, vertices)
         triangle.elasticity = 0.6
         triangle.friction = FRICTION
