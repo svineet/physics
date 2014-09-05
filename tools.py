@@ -601,16 +601,7 @@ from functools import partial
 class ToolBox(BoxLayout):
 
     def __init__(self, **kw):
-        super(ToolBox, self).__init__(**kw)
-
-        revealer = SublimeButton(
-            text="Tools",
-            size_hint=(0.8 ,1),
-            on_press1=self.toggle_tool_visible)
-
-        self.add_widget(revealer)
-        
-        self.tools_visible = False
+        super(ToolBox, self).__init__(**kw)    
 
         self.scroller = ScrollView(size_hint=(1, 1))
 
@@ -631,6 +622,8 @@ class ToolBox(BoxLayout):
             self.scroll_box.add_widget(b)
         self.scroller.add_widget(self.scroll_box)
 
+        self.add_widget(self.scroller)
+
     def button_cb(self, tool_name, *args):
         game = self.parent.parent.ids.game
         if hasattr(game.tools[tool_name], 'click_button_cb'):
@@ -638,14 +631,6 @@ class ToolBox(BoxLayout):
         else:
             game.set_tool(tool_name)
         game.show_help_text(game.tools[tool_name].help_text)
-
-    def toggle_tool_visible(self, *args):
-        if self.tools_visible:
-            self.remove_widget(self.scroller)
-            self.tools_visible = False
-        elif not self.tools_visible:
-            self.add_widget(self.scroller)
-            self.tools_visible = True
 
     def toogle_game_play_pause(self, *args):
         game = self.parent.parent.ids.game
