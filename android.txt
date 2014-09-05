@@ -1,3 +1,0 @@
-title=Physics Android
-author=svineet
-orientation=landscape
