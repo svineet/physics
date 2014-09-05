@@ -322,6 +322,7 @@ class JointTool(Tool):
         self.game = game
         self.space = self.game.get_space()
         self.draw_line = None
+        self.color = []
 
         self.clean_up()
 
@@ -330,7 +331,9 @@ class JointTool(Tool):
             self.draw_line.points = [self.init_pos[0], self.init_pos[1], x, y]
         elif self.init_pos:
             with self.game.canvas.after:
-                Color(*utils.random_color(), mode="rgba")
+                self.color = utils.random_color()
+                # print "drawing tool:", self.color
+                Color(*self.color, mode="rgba")
                 self.draw_line = \
                     Line(points=[self.init_pos[0], self.init_pos[1], x, y],
                          width=LINE_WIDTH)
@@ -377,6 +380,7 @@ class JointTool(Tool):
                 self.body1, self.body2,
                 anchr1, anchr2
                 )
+            joint.color = self.color
 
             self.space.add(joint)
         self.clean_up()

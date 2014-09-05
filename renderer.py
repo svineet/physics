@@ -137,7 +137,7 @@ class Renderer:
                     self.joints_drawn[joint].points = lpoints
                 else:
                     with self.parent.canvas:
-                        Color(*get_rand_color(), mode="rgba")
+                        Color(*joint.color, mode="rgba")
                         self.joints_drawn[joint] = \
                             Line(points=lpoints,
                                  width=LINE_WIDTH)

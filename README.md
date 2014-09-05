@@ -1,33 +1,31 @@
 Physics
 =======
 
-A Physics Activity in kivy, for the kivy app challenge.
+A Physics emulator made with Python, Kivy, and pymunk.
 
 
 Setup
 -----
+
+You need pip to install the requirements, you should have it already if you're experienced with Python.
 
 ```bash
 pip install -r requirements.txt
 ```
 
 And `python main.py`  
-No hardware specific features. Only PC supported for now.
 
 
 Get Started
 -----------
-
-Reveal toolbar by clicking on Tools.   
+   
 Select a tool and start doodling!
 
 Features which are somewhat hard to see:
-* if you've drawn a shape before, then its saved. Like if you draw a circle and then click anywhere, the same one you drew before will again be drawn. This makes it easy to duplicate stuff.
+* If you've drawn a shape before, then its saved. Like if you draw a circle and then click anywhere, the same one you drew before will again be drawn. This makes it easy to duplicate stuff.
 * The eraser tool is like a pen. Drag with it and everything in the path is destroyed! So fun!
 
 All else can be discovered easily I think.
-
-[Ideas to try (see introduction below for why I am pointing you to this page)](http://wiki.sugarlabs.org/go/Activities/Physics#Ideas_to_try)
 
 
 Introduction
@@ -36,18 +34,8 @@ Introduction
 Physics is a playground for young learners to see how things work, and try out things that are hard to do in real world. Like drop a ball from a tower to see which lands first ;)
 Newton's cradle, Galileo's Pisa experiment, and simple experiments like these can easily be made in this program.
 
-I am a contributor to [Sugar Labs](http://sugarlabs.org/), an organization which develops Sugar, a learning environment which runs on 3 million laptops ("One laptop per child" initiative's XO range) worldwide in over 40 countries, including Australia, Uruguay, and a small(very small) part of India, and so many more countries.
-
-[Physics](https://github.com/walterbender/physics) is a Sugar application which is much like this one. My app is inspired by Physics and thus named so too. I am also a [contributor](https://github.com/walterbender/physics/blob/master/NEWS) to the Activity, and the Activity is written in Box2d and pygame, so no code copying, written from scratch :)
-P.S: Application == Activity in Sugar jargon
-
 Go on, run it and have fun :)
 
-
-Warning
--------
-
-This stuff is experimental. There is no android support since cymunk doesn't work properly and there are inconsistencies between the pymunk and the cymunk api. This app was previously written for cymunk so all files have `cymunk.Space`, `cymunk.Poly`, `cymunk.Body`, etc. , but at the start its `import pymunk as cymunk`. 
 
 
 What doesn't work:
@@ -55,14 +43,3 @@ What doesn't work:
 
 * Triangles don't behave properly. I've looked into the issue, I couldn't find the problem. 
 
-
-> Therefore the Master  
-> acts without doing anything  
-> and teaches without saying anything.  
-> Things arise and she lets them come;  
-> things disappear and she lets them go.  
-> She has but doesn't possess,  
-> acts but doesn't expect.  
-> When her work is done, she forgets it.  
-> That is why it lasts forever.  
-> - _Tao Te Ching_ , Stephen Mitchell translation
