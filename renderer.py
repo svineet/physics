@@ -34,7 +34,7 @@ class Renderer:
         space.collision_slop = 0.5
 
         # create 4 segments that will act as a bounds
-        for x in xrange(2):
+        for x in range(2):
             seg = cymunk.Segment(space.static_body,
                     Vec2d(0, 0), Vec2d(0, 0), 10.0)
             seg.elasticity = 0.6
@@ -110,7 +110,7 @@ class Renderer:
                 rect.points = points2
                 unrotater.angle = -math.degrees(body.angle)
                 unrotater.origin = p.x, p.y
-            else: print body
+            else: print(body)
 
         for joint in self.space.constraints:
             # print joint.anchr1, joint.anchr2
